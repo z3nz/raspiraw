@@ -1590,9 +1590,53 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			vcos_log_error("This sensor does not currently support "
-				       "manual cropping settings. Aborting");
-			return -1;
+			// vcos_log_error("This sensor does not currently support "
+			// 	       "manual cropping settings. Aborting");
+			// return -1;
+
+			if (cfg.crop.hinc >= 0)
+			{
+				// TODO: handle modes different to ov5647 as well
+				modReg(sensor_mode, 0x3814, 0, 7, cfg.crop.hinc, EQUAL);
+			}
+
+			if (cfg.crop.vinc >= 0)
+			{
+				// TODO: handle modes different to ov5647 as well
+				modReg(sensor_mode, 0x3815, 0, 7, cfg.crop.vinc, EQUAL);
+			}
+
+			if (cfg.crop.width > 0)
+			{
+				sensor_mode->width = cfg.crop.width;
+				// TODO: handle modes different to ov5647 as well
+				modReg(sensor_mode, 0x3808, 0, 3, cfg.crop.width >>8, EQUAL);
+				modReg(sensor_mode, 0x3809, 0, 7, cfg.crop.width &0xFF, EQUAL);
+			}
+
+			if (cfg.crop.height > 0)
+			{
+				sensor_mode->height = cfg.crop.height;
+				// TODO: handle modes different to ov5647 as well
+				modReg(sensor_mode, 0x380A, 0, 3, cfg.crop.height >>8, EQUAL);
+				modReg(sensor_mode, 0x380B, 0, 7, cfg.crop.height &0xFF, EQUAL);
+			}
+
+			if (cfg.crop.left > 0)
+			{
+				// TODO: handle modes different to ov5647 as well
+				int val = cfg.crop.left * (cfg.mode < 2 ? 1 : 1 << (cfg.mode / 2 - 1));
+				modReg(sensor_mode, 0x3800, 0, 3, val >>8, EQUAL);
+				modReg(sensor_mode, 0x3801, 0, 7, val &0xFF, EQUAL);
+			}
+
+			if (cfg.crop.top > 0)
+			{
+				// TODO: handle modes different to ov5647 as well
+				int val = cfg.crop.top * (cfg.mode < 2 ? 1 : 1 << (cfg.mode / 2 - 1));
+				modReg(sensor_mode, 0x3802, 0, 3, val >>8, EQUAL);
+				modReg(sensor_mode, 0x3803, 0, 7, val &0xFF, EQUAL);
+			}
 		}
 	}
 
